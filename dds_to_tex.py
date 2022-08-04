@@ -1,4 +1,4 @@
-from struct import pack, unpack
+from struct import pack
 
 import numpy as numpy
 from numpy import ushort
@@ -74,10 +74,6 @@ def get_tex_depth(dds):
     return ushort(dds.hdr.depth)
 
 
-def get_tex_lod_offset():
-    return lod_offset
-
-
 # test
 f = Dds.from_file("images/dds/squidward-256-BGRA_32.dds")
 f_tex = Tex.from_file("images/tex/squidward-256-BGRA_32.tex")
@@ -96,4 +92,5 @@ print(get_tex_attribute(f))
 print(get_tex_format(f))
 header_pt1 = pack("<IIHHHH", get_tex_attribute(f), get_tex_format(f), get_tex_width(f), get_tex_height(f),
                   get_tex_depth(f), get_tex_mip_levels(f))
-print(header_pt1.hex())
+print(header_pt1 + lod_offset.tobytes() + get_tex_offset_array(f).tobytes())
+
