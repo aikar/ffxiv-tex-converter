@@ -61,7 +61,7 @@ types:
         0x800000: ddsd_depth
       caps_flags:
         0x8: ddscaps_complex
-        0x400000: ddscaps_mimap
+        0x400000: ddscaps_mipmap
         0x1000: ddscaps_texture
       caps2_flags:
           0x200: ddscaps2_cubemap
@@ -79,7 +79,7 @@ types:
         type: u4
       - id: flags
         type: format_flags
-      - id: four_c_c
+      - id: fourcc
         type: u4
         enum: pixel_formats
       - id: rgb_bit_count

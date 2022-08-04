@@ -38,7 +38,7 @@ class Dds(KaitaiStruct):
         class CapsFlags(IntFlag):
             ddscaps_complex = 8
             ddscaps_texture = 4096
-            ddscaps_mimap = 4194304
+            ddscaps_mipmap = 4194304
 
         class Caps2Flags(IntFlag):
             ddscaps2_cubemap = 512
@@ -87,7 +87,7 @@ class Dds(KaitaiStruct):
         class FormatFlags(Enum):
             ddpf_alphapixels = 1
             ddpf_alpha = 2
-            ddpf_fourcc = 4
+            ddpf_mipmap = 4
             ddpf_rgb = 64
             ddpf_yuv = 512
             ddpf_luminance = 131072
@@ -100,7 +100,7 @@ class Dds(KaitaiStruct):
         def _read(self):
             self.size = self._io.read_u4le()
             self.flags = KaitaiStream.resolve_enum(Dds.DdsPixelformat.FormatFlags, self._io.read_u4le())
-            self.four_c_c = KaitaiStream.resolve_enum(Dds.DdsPixelformat.PixelFormats, self._io.read_u4le())
+            self.fourcc = KaitaiStream.resolve_enum(Dds.DdsPixelformat.PixelFormats, self._io.read_u4le())
             self.rgb_bit_count = self._io.read_u4le()
             self.r_bit_mask = self._io.read_bytes(4)
             self.g_bit_mask = self._io.read_bytes(4)
