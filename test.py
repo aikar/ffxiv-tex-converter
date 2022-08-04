@@ -11,4 +11,6 @@ f1_tex = Tex.from_file("images/tex/squidward-256-BC1.tex")
 print(str(f1.hdr.ddspf.fourcc))
 print(str(f1_tex.hdr.format))
 
+# todo get info for header
+
 

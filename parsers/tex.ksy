@@ -33,7 +33,6 @@ types:
         repeat-expr: 3
       - id: offset_to_surface13
         doc: 'starts with 0x50, mipmaps offset, so ffxiv knows where to look for each mipmap. offset varies by mipmap1 width and length, and whether compressed or not.'
-        # todo 
         type: u4
         repeat: expr
         repeat-expr: 13
