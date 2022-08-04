@@ -76,17 +76,16 @@ types:
   dds_pixelformat:
     seq:
       - id: size
-        doc: start of ddspf struct. maybe should actually make this a struct? how do i nest a struct in a struct?
         type: u4
       - id: flags
-        type: u4
-        enum: format_flags
+        type: format_flags
       - id: four_c_c
         type: u4
         enum: pixel_formats
       - id: rgb_bit_count
         type: u4
       - id: r_bit_mask
+        # i think bitmasks are easier to understand as arrays
         size: 4
       - id: g_bit_mask
         size: 4

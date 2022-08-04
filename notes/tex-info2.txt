@@ -19,3 +19,6 @@ mipmlevels 4 bytes
 LodOffset[3] uint
 
 OffsetToSurface[13] uint
+
+can reorder c# enums with
+(\b\w+\b)\s+(\b\w+\b) \2 \1
