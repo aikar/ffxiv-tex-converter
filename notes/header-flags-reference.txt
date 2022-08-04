@@ -1,0 +1,16 @@
+header_flags https://docs.microsoft.com/en-us/windows/win32/direct3ddds/dds-header
+caps 	0x1
+height 	0x2
+width 	0x4
+pitch 	0x8
+format 	0x1000
+mipmap 	0x20000
+linear 	0x80000
+depth 	0x800000
+// for ffxiv only questions are pitch (if yes, then uncompressed), mipmaps (yes/no), linear (if yes, the compressed)
+// caps, format, and mipmap flag may not be set
+examples:
+0x2100f = caps yes, height yes, width yes, pitch yes, format yes, mipmap yes, linear no, depth no. // uncompressed w/ mipmaps
+0x81007 = caps yes, height yes, width, yes, pitch no, format yes, mipmaps no, linear yes, depth no. // BC1 no mipmaps
+0xA1007 = caps yes, height yes, width, yes, pitch no, format yes, mipmaps yes, linear yes, depth no. // BC1 w/ mipmaps
+
