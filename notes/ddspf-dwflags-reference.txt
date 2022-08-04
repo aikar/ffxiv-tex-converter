@@ -1,0 +1,11 @@
+ddspf_flags https://docs.microsoft.com/en-us/windows/win32/direct3ddds/dds-pixelformat
+ddpf_alphapixels 	0x1
+ddpf_alpha 	        0x2
+ddpf_fourcc 	    0x4
+ddpf_rgb 	        0x40
+ddpf_yuv 	        0x200
+ddpf_luminance 	    0x20000
+// for ffxiv only questions are ddpf_alphapixels, ddpf_fourcc
+// ddpf_alpha, ddpf_yuv, and ddpf_luminance are legacy
+
+
