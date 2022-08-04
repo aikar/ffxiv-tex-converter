@@ -80,17 +80,17 @@ types:
             # integer types
             0x1130: l8
             0x1131: a8
-            0x1440: b4_g4_r4_a4
-            0x1441: b5_g5_r5_a1
-            0x1450: b8_g8_r8_a8
-            0x1451: b8_g8_r8_x8
+            0x1440: b4g4r4a4
+            0x1441: b5g5r5a1
+            0x1450: b8g8r8a8
+            0x1451: b8g8r8x8
             
             # floating point types
-            0x2150: r32_f
-            0x2250: r16_g16_f
-            0x2260: r32_g32_f
-            0x2460: r16g_16_b16_a16_f
-            0x2470: r32_g32_b32_a32_f
+            0x2150: r32f
+            0x2250: r16g16f
+            0x2260: r32g32f
+            0x2460: r16g16b16a16f
+            0x2470: r32g32b32a32f
             
             # block compression types (dx9)
             0x3420: dxt1
@@ -102,7 +102,7 @@ types:
             
             # depth stencil
             0x4140: d16
-            0x4250: d24_s8
+            0x4250: d24s8
             
             #special types
             0x5100: null1
