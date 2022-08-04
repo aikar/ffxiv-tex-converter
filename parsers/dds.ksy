@@ -27,7 +27,7 @@ types:
         type: u4
       - id: depth
         type: u4
-      - id: mip_map_count
+      - id: mipmap_count
         type: u4
       - id: reserved1
         size: 44

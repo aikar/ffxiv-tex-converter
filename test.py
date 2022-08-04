@@ -12,5 +12,21 @@ print(str(f1.hdr.ddspf.fourcc))
 print(str(f1_tex.hdr.format))
 
 # todo get info for header
+# todo write tex mipmap offsets
 
+for offset in f1_tex.hdr.offset_to_surface13:
+    print(offset)
 
+mipmaplength = int(f1_tex.hdr.height * f1_tex.hdr.width/2)
+offset = 80
+mipmaplengthsum = 0
+count = 1
+for i in range(f1_tex.hdr.mip_levels):
+    print(offset)
+    offset += mipmaplength
+    mipmaplengthsum += mipmaplength
+    mipmaplength = max(16, mipmaplength >> 2)
+    count += 1
+for i in range(13 - f1_tex.hdr.mip_levels):
+    print(0)
+    count += 1

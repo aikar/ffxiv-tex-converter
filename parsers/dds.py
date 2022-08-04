@@ -65,7 +65,7 @@ class Dds(KaitaiStruct):
             self.width = self._io.read_u4le()
             self.pitch_or_linear_size = self._io.read_u4le()
             self.depth = self._io.read_u4le()
-            self.mip_map_count = self._io.read_u4le()
+            self.mipmap_count = self._io.read_u4le()
             self.reserved1 = self._io.read_bytes(44)
             self.ddspf = Dds.DdsPixelformat(self._io, self, self._root)
             self.caps = KaitaiStream.resolve_enum(Dds.Header.CapsFlags, self._io.read_u4le())
