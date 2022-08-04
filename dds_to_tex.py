@@ -73,11 +73,10 @@ def get_tex_depth(dds):
 
 
 # test
-f = Dds.from_file("images/dds/squidward-256-BC1.dds")
-f_offset_array = get_tex_offset_array(f)
+f = Dds.from_file("images/dds/squidward-256-BGRA_32.dds")
 body = (b''.join(f.bd.data))
 header_pt1 = pack("<IIHHHH", get_tex_attribute(f), get_tex_format(f), get_tex_width(f), get_tex_height(f),
                   get_tex_depth(f), get_tex_mip_levels(f))
 test = (header_pt1 + lod_offset.tobytes() + get_tex_offset_array(f).tobytes() + body)
-with open('output/squidward-256-BC1.tex', 'wb') as f:
+with open('output/squidward-256-BGRA_32.tex', 'wb') as f:
     f.write(test)
