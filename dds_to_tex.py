@@ -1,8 +1,6 @@
 from struct import pack
-
 import numpy as numpy
 from numpy import ushort
-
 from parsers.dds import Dds
 from parsers.tex import Tex
 
@@ -75,22 +73,11 @@ def get_tex_depth(dds):
 
 
 # test
-f = Dds.from_file("images/dds/squidward-256-BGRA_32.dds")
-f_tex = Tex.from_file("images/tex/squidward-256-BGRA_32.tex")
-
-# offset array test
+f = Dds.from_file("images/dds/squidward-256-BC1.dds")
 f_offset_array = get_tex_offset_array(f)
-f_tex_offset_array = numpy.zeros(len(f_tex.hdr.offset_to_surface13))
-count = 0
-for item in f_tex.hdr.offset_to_surface13:
-    f_tex_offset_array[count] = item
-    count += 1
-print(numpy.array_equal(f_offset_array, f_tex_offset_array))
-
-#
-print(get_tex_attribute(f))
-print(get_tex_format(f))
+body = (b''.join(f.bd.data))
 header_pt1 = pack("<IIHHHH", get_tex_attribute(f), get_tex_format(f), get_tex_width(f), get_tex_height(f),
                   get_tex_depth(f), get_tex_mip_levels(f))
-print(header_pt1 + lod_offset.tobytes() + get_tex_offset_array(f).tobytes())
-
+test = (header_pt1 + lod_offset.tobytes() + get_tex_offset_array(f).tobytes() + body)
+with open('output/squidward-256-BC1.tex', 'wb') as f:
+    f.write(test)
