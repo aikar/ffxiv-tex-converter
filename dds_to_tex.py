@@ -111,7 +111,8 @@ if __name__ == '__main__':
         output_path = Path("./output/" + str((dds_path.with_name(dds_path.stem + '.tex'))))
         binary = get_tex_binary(dds_path)
         print('written:' + str(output_path))
+        output_path.parent.mkdir(exist_ok=True, parents=True)
         with open(output_path, 'wb') as wb:
             wb.write(binary)
-        execution_time = (time.time() - start_time)
-        print("Execution Time: " + str(round(execution_time)) + " sec")
+    execution_time = (time.time() - start_time)
+    print("Execution Time: " + str(round(execution_time)) + " sec")
