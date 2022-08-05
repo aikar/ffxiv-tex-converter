@@ -35,3 +35,11 @@ just tests my parsers
   not do that for me. Just an FYI if you re-compile the dds.ksy for python you might have to redo that.
 * Read [Microsoft DDS_Header Docs](https://docs.microsoft.com/en-us/windows/win32/direct3ddds/dds-header) for more info.
 
+### tex.ksy
+
+* kaitai struct to read tex header, body. body reading is only rudimentary to reach EOF.
+* See Penumbra/TexTools/Lumina source code for more info.
+
+### tex.py
+
+*same as the dds.py info really.
