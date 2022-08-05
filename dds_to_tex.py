@@ -1,5 +1,8 @@
+import time
+from pathlib import Path
 from struct import pack
-import numpy as numpy
+
+import numpy
 from numpy import ushort
 from parsers.dds import Dds
 from parsers.tex import Tex
@@ -23,12 +26,25 @@ def get_mipmap_offsets(mipmap_length, mipmap_count):
     offset_array = numpy.zeros(13, dtype=int)
     offset = 80
     j = 0
-    for i in range(mipmap_count):
-        offset_array[j] = offset
-        offset += mipmap_length
-        mipmap_length = max(16, mipmap_length >> 2)
-        j += 1
-    return offset_array
+    try:
+        for i in range(mipmap_count):
+            offset_array[j] = offset
+            offset += mipmap_length
+            mipmap_length = max(16, mipmap_length >> 2)
+            j += 1
+        return offset_array
+    except IndexError as e:
+        raise SystemExit(
+            'Image has too many mipmaps. Mipmap amount: ' + str(mipmap_count) + '. Check last \'given\' image.\nToo '
+                                                                                'many mipmaps can be caused by:\n1) '
+                                                                                'Having too large an image. '
+                                                                                'TEX supports up to 4096x4096 '
+                                                                                'resolution *only* if you are using '
+                                                                                'mipmaps.\n2) A broken cubemap. Check '
+                                                                                'if image ends in \'_e\' or \'_f\'. '
+                                                                                'You cannot import cubemaps anyway, '
+                                                                                'so get rid of it.\n 3) I don\'t '
+                                                                                'know.') from e
 
 
 def get_tex_offset_array(dds):
@@ -45,14 +61,14 @@ def get_tex_attribute(dds):
 
 
 def get_tex_format(dds):
-    dds_fourcc = dds.hdr.ddspf.fourcc
-    if dds_fourcc == Dds.DdsPixelformat.PixelFormats.dxt1:
+    fourcc = dds.hdr.ddspf.fourcc
+    if fourcc == Dds.DdsPixelformat.PixelFormats.dxt1:
         return Tex.Header.TextureFormat.dxt1.value
-    if dds_fourcc == Dds.DdsPixelformat.PixelFormats.dxt3:
+    if fourcc == Dds.DdsPixelformat.PixelFormats.dxt3:
         return Tex.Header.TextureFormat.dxt3.value
-    if dds_fourcc == Dds.DdsPixelformat.PixelFormats.dxt5:
+    if fourcc == Dds.DdsPixelformat.PixelFormats.dxt5:
         return Tex.Header.TextureFormat.dxt3.value
-    if dds_fourcc == Dds.DdsPixelformat.PixelFormats.none:
+    if fourcc == Dds.DdsPixelformat.PixelFormats.none:
         return Tex.Header.TextureFormat.b8g8r8a8.value
 
 
@@ -72,12 +88,30 @@ def get_tex_depth(dds):
     return ushort(dds.hdr.depth)
 
 
-# test
-f = Dds.from_file("images/dds/squidward-256-BC1.dds")
-f_offset_array = get_tex_offset_array(f)
-body = (b''.join(f.bd.data))
-header_pt1 = pack("<IIHHHH", get_tex_attribute(f), get_tex_format(f), get_tex_width(f), get_tex_height(f),
-                  get_tex_depth(f), get_tex_mip_levels(f))
-test = (header_pt1 + lod_offset.tobytes() + get_tex_offset_array(f).tobytes() + body)
-with open('output/squidward-256-BC1.tex', 'wb') as f:
-    f.write(test)
+def get_tex_binary(path):
+    dds_binary = Dds.from_file(path)
+    header_info = pack('<IIHHHH', get_tex_attribute(dds_binary), get_tex_format(dds_binary),
+                       get_tex_width(dds_binary),
+                       get_tex_height(dds_binary), get_tex_depth(dds_binary), get_tex_mip_levels(dds_binary))
+    header = (header_info + lod_offset.tobytes() + get_tex_offset_array(dds_binary).tobytes())
+    body = (b''.join(dds_binary.bd.data))
+    tex_binary = header + body
+    return tex_binary
+
+
+# todo error handling
+
+if __name__ == '__main__':
+    p = Path('./images/test/')
+    grabber = list(p.glob('**/*.dds'))
+    start_time = time.time()
+
+    for dds_path in grabber:
+        print('given:' + str(dds_path))
+        output_path = Path("./output/" + str((dds_path.with_name(dds_path.stem + '.tex'))))
+        binary = get_tex_binary(dds_path)
+        print('written:' + str(output_path))
+        with open(output_path, 'wb') as wb:
+            wb.write(binary)
+        execution_time = (time.time() - start_time)
+        print("Execution Time: " + str(round(execution_time)) + " sec")
