@@ -1,3 +1,9 @@
+## Required python libraries
+
+    pip install kaitaistruct
+    pip install numpy
+
+---
 ## dds_to_tex.py
 Converts DDS to TEX.
 
