@@ -14,7 +14,7 @@ def get_tex_mipmap_length_format(height, width, fourcc):
     # potentially might put in BC4 and BC5 (ATI1, ATI2)
     if fourcc == Dds.DdsPixelformat.PixelFormats.dxt1:
         return int(height * width // 2)
-    if fourcc == Dds.DdsPixelformat.PixelFormats.dxt3 or fourcc == Dds.DdsPixelformat.PixelFormats.dxt5:
+    if fourcc == Dds.DdsPixelformat.PixelFormats.dxt3 or fourcc == Dds.DdsPixelformat.PixelFormats.dxt5 or fourcc == Dds.DdsPixelformat.PixelFormats.dx10:
         return int(height * width * 2)
     if fourcc == Dds.DdsPixelformat.PixelFormats.none:
         return int(height * width * 4)
@@ -54,10 +54,7 @@ def get_tex_offset_array(dds):
 
 
 def get_tex_attribute(dds):
-    dds_fourcc = dds.hdr.ddspf.fourcc
-    if dds_fourcc == Dds.DdsPixelformat.PixelFormats.dxt1 or dds_fourcc == Dds.DdsPixelformat.PixelFormats.dxt3 or \
-            dds_fourcc == Dds.DdsPixelformat.PixelFormats.dxt5 or dds_fourcc == Dds.DdsPixelformat.PixelFormats.none:
-        return Tex.Header.Attribute.texture_type_2d.value
+    return Tex.Header.Attribute.texture_type_2d.value
 
 
 def get_tex_format(dds):
@@ -67,7 +64,10 @@ def get_tex_format(dds):
     if fourcc == Dds.DdsPixelformat.PixelFormats.dxt3:
         return Tex.Header.TextureFormat.dxt3.value
     if fourcc == Dds.DdsPixelformat.PixelFormats.dxt5:
-        return Tex.Header.TextureFormat.dxt3.value
+        return Tex.Header.TextureFormat.dxt5.value
+    if fourcc == Dds.DdsPixelformat.PixelFormats.dx10:
+        if dds.hdr_dxt10.dxgi_format == Dds.HeaderDxt10.DxgiFormats.dxgi_format_bc7_unorm:
+            return Tex.Header.TextureFormat.bc7
     if fourcc == Dds.DdsPixelformat.PixelFormats.none:
         return Tex.Header.TextureFormat.b8g8r8a8.value
 
@@ -90,8 +90,7 @@ def get_tex_depth(dds):
 
 def get_tex_binary(path):
     dds_binary = Dds.from_file(path)
-    header_info = pack('<IIHHHH', get_tex_attribute(dds_binary), get_tex_format(dds_binary),
-                       get_tex_width(dds_binary),
+    header_info = pack('<IIHHHH', get_tex_attribute(dds_binary), get_tex_format(dds_binary), get_tex_width(dds_binary),
                        get_tex_height(dds_binary), get_tex_depth(dds_binary), get_tex_mip_levels(dds_binary))
     header = (header_info + lod_offset.tobytes() + get_tex_offset_array(dds_binary).tobytes())
     body = (b''.join(dds_binary.bd.data))
