@@ -73,11 +73,11 @@ def get_tex_format(dds):
 
 
 def get_tex_height(dds):
-    return ushort(dds.hdr.width)
+    return ushort(dds.hdr.height)
 
 
 def get_tex_width(dds):
-    return ushort(dds.hdr.height)
+    return ushort(dds.hdr.width)
 
 
 def get_tex_mip_levels(dds):

@@ -1,0 +1,7 @@
+for upscaled textures:
+if RGBA -> BC3 (highest quality)
+if RGB -> BC7 ('quality' quality)
+diffuse: x2, grass x4
+normals: x2
+specular: x1
+
