@@ -10,14 +10,24 @@ from parsers.tex import Tex
 lod_offset = numpy.array([0, 1, 2])
 
 
-def get_tex_mipmap_length_format(height, width, fourcc):
+def get_tex_mipmap_length_format(dds):
+    height = dds.hdr.height
+    width = dds.hdr.width
+    fourcc = dds.hdr.ddspf.fourcc
     # potentially might put in BC4 and BC5 (ATI1, ATI2)
     if fourcc == Dds.DdsPixelformat.PixelFormats.dxt1:
         return int(height * width // 2)
-    if fourcc == Dds.DdsPixelformat.PixelFormats.dxt3 or fourcc == Dds.DdsPixelformat.PixelFormats.dxt5 or fourcc == Dds.DdsPixelformat.PixelFormats.dx10:
+    if fourcc == Dds.DdsPixelformat.PixelFormats.dxt3 or fourcc == Dds.DdsPixelformat.PixelFormats.dxt5:
         return int(height * width * 2)
     if fourcc == Dds.DdsPixelformat.PixelFormats.none:
         return int(height * width * 4)
+    if fourcc == Dds.DdsPixelformat.PixelFormats.dx10:
+        if dds.hdr_dxt10.dxgi_format == Dds.HeaderDxt10.DxgiFormats.dxgi_format_bc7_unorm \
+                or dds.hdr_dxt10.dxgi_format == Dds.HeaderDxt10.DxgiFormats.dxgi_format_bc3_unorm \
+                or dds.hdr_dxt10.dxgi_format == Dds.HeaderDxt10.DxgiFormats.dxgi_format_bc2_unorm:
+            return int(height * width * 2)
+        if dds.hdr_dxt10.dxgi_format == Dds.HeaderDxt10.DxgiFormats.dxgi_format_bc1_unorm:
+            return int(height * width // 2)
     else:
         return None
 
@@ -48,7 +58,7 @@ def get_mipmap_offsets(mipmap_length, mipmap_count):
 
 
 def get_tex_offset_array(dds):
-    tex_mipmap_length = get_tex_mipmap_length_format(dds.hdr.height, dds.hdr.width, dds.hdr.ddspf.fourcc)
+    tex_mipmap_length = get_tex_mipmap_length_format(dds)
     tex_offset_array = get_mipmap_offsets(tex_mipmap_length, dds.hdr.mipmap_count)
     return tex_offset_array
 
@@ -68,6 +78,12 @@ def get_tex_format(dds):
     if fourcc == Dds.DdsPixelformat.PixelFormats.dx10:
         if dds.hdr_dxt10.dxgi_format == Dds.HeaderDxt10.DxgiFormats.dxgi_format_bc7_unorm:
             return Tex.Header.TextureFormat.bc7
+        if dds.hdr_dxt10.dxgi_format == Dds.HeaderDxt10.DxgiFormats.dxgi_format_bc3_unorm:
+            return Tex.Header.TextureFormat.dxt5
+        if dds.hdr_dxt10.dxgi_format == Dds.HeaderDxt10.DxgiFormats.dxgi_format_bc2_unorm:
+            return Tex.Header.TextureFormat.dxt3.value
+        if dds.hdr_dxt10.dxgi_format == Dds.HeaderDxt10.DxgiFormats.dxgi_format_bc1_unorm:
+            return Tex.Header.TextureFormat.dxt1.value
     if fourcc == Dds.DdsPixelformat.PixelFormats.none:
         return Tex.Header.TextureFormat.b8g8r8a8.value
 
