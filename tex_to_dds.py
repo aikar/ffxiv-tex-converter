@@ -34,7 +34,7 @@ def get_dds_fourcc(tex):
         return ddspf_pf.none
 
 
-def get_pitch(width, fourcc):
+def get_pitch(height, width, fourcc):
     # doc: https://docs.microsoft.com/en-us/windows/win32/direct3ddds/dx-graphics-dds-pguide#dds-file-layout
     ddspf_pf = Dds.DdsPixelformat.PixelFormats
     if fourcc == ddspf_pf.none:
@@ -45,7 +45,7 @@ def get_pitch(width, fourcc):
             block_size = 8
         else:
             block_size = 16
-        pitch = max(1, ((width + 3) / 4)) * block_size
+        pitch = max(1, ((width + 3) / 4)) * max(1, ((height + 3) / 4)) * block_size
     return int(pitch)
 
 
@@ -106,7 +106,7 @@ def get_dds_binary(path):
     flags = get_dds_flags(fourcc, mipmapCount)
     height = get_dds_height(tex_binary)
     width = get_dds_width(tex_binary)
-    pitch = get_pitch(width, fourcc)
+    pitch = get_pitch(height, width, fourcc)
     # mipmapCount goes here
     depth = 1
     reserved1_array = numpy.zeros(11, dtype=int)
