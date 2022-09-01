@@ -45,7 +45,8 @@ def get_pitch(height, width, fourcc):
             block_size = 8
         else:
             block_size = 16
-        pitch = max(1, ((width + 3) / 4)) * max(1, ((height + 3) / 4)) * block_size
+        # microsoft recommends width+3 and height+3, but I just set mine to match nvidia texture tools
+        pitch = max(1, ((width) / 4)) * max(1, ((height) / 4)) * block_size
     return int(pitch)
 
 
