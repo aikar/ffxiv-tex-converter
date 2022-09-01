@@ -18,8 +18,7 @@ This will write to:
     output/images/test/kitten/bar.tex
 
 * Accepts nested directory structures.
-* Does not support DXT10 headers (soon).
-* Supports BGRA, BGRX, BC1 (DXT1), BC2 (DXT3), and BC3 (DXT5). 
+* Supports BGRA, BGRX, BC1 (DXT1), BC2 (DXT3), BC3 (DXT5), and BC7. 
 
 ### Why should I use this over TexTools?
 * TexTools breaks mipmaps. Either by falsely calculating the offset, or just erasing the end of the file.
@@ -34,7 +33,23 @@ This will write to:
 I personally still use TexTools for a lot of stuff. Please don't perpetuate cultish behavior around mod tools. It's weird.
 
 ---
+## tex_to_dds.py
+Converts TEX to DDS.
 
+TEX must be in images/test folder as such:
+    
+    images/test/bar.tex
+    images/test/kitten/foo.tex
+
+This will write to:
+
+    output/images/test/bar.dds
+    output/images/test/kitten/bar.dds
+
+* Accepts nested directory structures.
+* Supports BGRA, BC1 (DXT1), BC2 (DXT3), BC3 (DXT5).
+
+---
 ## tex_body_repair.py
 
 Reads a pair of DDS, TEX; where DDS body replaces TEX body, to repair botched TexTools write.
