@@ -9,13 +9,13 @@ Converts DDS to TEX.
 
 DDS must be in images/test folder as such:
     
-    images/test/bar.dds
-    images/test/kitten/foo.dds
+    images/dds_to_tex/bar.dds
+    images/dds_to_tex/kitten/foo.dds
 
 This will write to:
 
-    output/images/test/bar.tex
-    output/images/test/kitten/bar.tex
+    output/images/dds_to_tex/bar.tex
+    output/images/dds_to_tex/kitten/bar.tex
 
 * Accepts nested directory structures.
 * Supports BGRA, BGRX, BC1 (DXT1), BC2 (DXT3), BC3 (DXT5), and BC7. 
@@ -38,13 +38,13 @@ Converts TEX to DDS.
 
 TEX must be in images/test folder as such:
     
-    images/test/bar.tex
-    images/test/kitten/foo.tex
+    images/tex_to_dds/bar.tex
+    images/tex_to_dds/kitten/foo.tex
 
 This will write to:
 
-    output/images/test/bar.dds
-    output/images/test/kitten/bar.dds
+    output/images/tex_to_dds/bar.dds
+    output/images/tex_to_dds/kitten/bar.dds
 
 * Accepts nested directory structures.
 * Supports BGRA, BC1 (DXT1), BC2 (DXT3), BC3 (DXT5).
