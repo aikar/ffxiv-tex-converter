@@ -32,7 +32,7 @@ class Dds(KaitaiStruct):
             ddsd_height = 2
             ddsd_width = 4
             ddsd_pitch = 8
-            ddsd_pixelformat = 65536
+            ddsd_pixelformat = 4096
             ddsd_mipmapcount = 131072
             ddsd_linearsize = 524288
             ddsd_depth = 8388608

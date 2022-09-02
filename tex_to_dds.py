@@ -1,7 +1,12 @@
+import os
 import time
+from multiprocessing import Pool
 from pathlib import Path
 from struct import pack
+
 import numpy
+from tqdm import tqdm
+
 from parsers.dds import Dds
 from parsers.tex import Tex
 
@@ -78,7 +83,7 @@ def get_ddspf_header(fourcc):
 def get_dds_flags(fourcc, mipmapCount):
     ff = Dds.Header.FormatFlags
     ddspf_pf = Dds.DdsPixelformat.PixelFormats
-    flags = (ff.ddsd_caps.value + ff.ddsd_width.value + ff.ddsd_height.value)
+    flags = (ff.ddsd_caps.value + ff.ddsd_width.value + ff.ddsd_height.value + ff.ddsd_pixelformat)
     if fourcc == ddspf_pf.none:
         flags += ff.ddsd_pitch.value
     else:
@@ -111,6 +116,7 @@ def get_dds_binary(path):
     # mipmapCount goes here
     depth = 1
     reserved1_array = numpy.zeros(11, dtype=int)
+    #reserved1_array = b'\x00' * 44
     ddspf_header = get_ddspf_header(fourcc)
     caps1 = get_dds_caps1(tex_binary)
     caps2 = 0
@@ -118,25 +124,57 @@ def get_dds_binary(path):
     caps4 = 0
     reserved2 = 0
 
-    header = magic + pack('<IIIIIII', size, flags, height, width, pitch, depth,
-                          mipmapCount) + reserved1_array.tobytes() + ddspf_header + pack('<IIIII', caps1, caps2, caps3,
-                                                                                         caps4, reserved2)
+    header = magic + pack('<IIIIIII', size, flags, height, width, pitch, depth, mipmapCount) + \
+             reserved1_array.tobytes() + ddspf_header + pack('<IIIII', caps1, caps2, caps3, caps4, reserved2)
     body = (b''.join(tex_binary.bdy.data))
     dds_binary = header + body
     return dds_binary
 
 
+def do_the_thing(input_path):
+    # print('given:' + str(input_path))
+    output_path = Path('./output') / str((input_path.with_name(input_path.stem + '.dds')))
+    output_path.parent.mkdir(exist_ok=True, parents=True)
+    binary = get_dds_binary(input_path)
+    with open(output_path, 'wb') as wb:
+        wb.write(binary)
+    # print('written:' + str(output_path))
+
+
+def chunks(arr, size):
+    """
+    split an array into chunks
+    :param arr: the array
+    :param size: size of each chunk
+    :return: yields one chunk of size `size` of `arr`
+    """
+    for i in range(0, len(arr), size):
+        yield arr[i: i + size]
+
+
 if __name__ == '__main__':
-    p = Path('./images/test/')
+    p = Path('./images/')
     grabber = list(p.glob('**/*.tex'))
+    print(f'Processing {len(grabber)} files.')
     start_time = time.time()
-    for tex_path in grabber:
-        print('given:' + str(tex_path))
-        output_path = Path("./output/" + str((tex_path.with_name(tex_path.stem + '.dds'))))
-        binary = get_dds_binary(tex_path)
-        output_path.parent.mkdir(exist_ok=True, parents=True)
-        print('written:' + str(output_path))
-        with open(output_path, 'wb') as wb:
-            wb.write(binary)
+
+    parallel = True
+    if parallel:
+        core_count = os.cpu_count()
+        # tqdm provides a pretty progress bar
+        with tqdm(total=len(grabber), unit="files") as pb:
+            # core_count * 32 seemed like a good number
+            # if stuff gets slow, lower 32 down to like 24 or something idk.
+
+            # looping in chunks rather than using the pool directly forces python to clean up its subprocesses and
+            # prevents overflowing memory to disk
+            for chunk in chunks(grabber, core_count * 24):
+                with Pool(core_count) as p:
+                    p.map(do_the_thing, chunk)
+                pb.update(len(chunk))
+    else:
+        for file in grabber:
+            do_the_thing(file)
+
     execution_time = (time.time() - start_time)
     print("Execution Time: " + str(round(execution_time)) + " sec")

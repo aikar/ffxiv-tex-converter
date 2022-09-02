@@ -62,7 +62,7 @@ types:
         0x2: ddsd_height
         0x4: ddsd_width
         0x8: ddsd_pitch
-        0x10000: ddsd_pixelformat
+        0x1000: ddsd_pixelformat
         0x20000: ddsd_mipmapcount
         0x80000: ddsd_linearsize
         0x800000: ddsd_depth
