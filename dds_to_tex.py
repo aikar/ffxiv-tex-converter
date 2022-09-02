@@ -1,9 +1,13 @@
+import os
 import time
+from multiprocessing import Pool
 from pathlib import Path
 from struct import pack
 
 import numpy
 from numpy import ushort
+from tqdm import tqdm
+
 from parsers.dds import Dds
 from parsers.tex import Tex
 
@@ -114,20 +118,49 @@ def get_tex_binary(path):
     return tex_binary
 
 
-# todo error handling
+def do_the_thing(input_path):
+    # print('given:' + str(input_path))
+    output_path = Path('./output') / str((input_path.with_name(input_path.stem + '.dds')))
+    output_path.parent.mkdir(exist_ok=True, parents=True)
+    binary = get_tex_binary(input_path)
+    with open(output_path, 'wb') as wb:
+        wb.write(binary)
+    # print('written:' + str(output_path))
+
+
+def chunks(arr, size):
+    """
+    split an array into chunks
+    :param arr: the array
+    :param size: size of each chunk
+    :return: yields one chunk of size `size` of `arr`
+    """
+    for i in range(0, len(arr), size):
+        yield arr[i: i + size]
+
 
 if __name__ == '__main__':
-    p = Path('./images/test/')
+    p = Path('./images/dds_to_tex/')
     grabber = list(p.glob('**/*.dds'))
+    print(f'Processing {len(grabber)} files.')
     start_time = time.time()
 
-    for dds_path in grabber:
-        print('given:' + str(dds_path))
-        output_path = Path("./output/" + str((dds_path.with_name(dds_path.stem + '.tex'))))
-        binary = get_tex_binary(dds_path)
-        print('written:' + str(output_path))
-        output_path.parent.mkdir(exist_ok=True, parents=True)
-        with open(output_path, 'wb') as wb:
-            wb.write(binary)
+    parallel = True
+    if parallel:
+        core_count = os.cpu_count()
+        # tqdm provides a pretty progress bar
+        with tqdm(total=len(grabber), unit="files") as pb:
+            # core_count * 32 seemed like a good number
+            # if stuff gets slow, lower 32 down to like 24 or something idk.
+            # looping in chunks rather than using the pool directly forces python to clean up its subprocesses and
+            # prevents overflowing memory to disk
+            for chunk in chunks(grabber, core_count * 12):
+                with Pool(core_count) as p:
+                    p.map(do_the_thing, chunk)
+                pb.update(len(chunk))
+    else:
+        for file in grabber:
+            do_the_thing(file)
+
     execution_time = (time.time() - start_time)
     print("Execution Time: " + str(round(execution_time)) + " sec")

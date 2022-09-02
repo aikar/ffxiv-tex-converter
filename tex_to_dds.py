@@ -153,7 +153,7 @@ def chunks(arr, size):
 
 
 if __name__ == '__main__':
-    p = Path('./images/')
+    p = Path('./images/tex_to_dds')
     grabber = list(p.glob('**/*.tex'))
     print(f'Processing {len(grabber)} files.')
     start_time = time.time()
@@ -165,10 +165,9 @@ if __name__ == '__main__':
         with tqdm(total=len(grabber), unit="files") as pb:
             # core_count * 32 seemed like a good number
             # if stuff gets slow, lower 32 down to like 24 or something idk.
-
             # looping in chunks rather than using the pool directly forces python to clean up its subprocesses and
             # prevents overflowing memory to disk
-            for chunk in chunks(grabber, core_count * 24):
+            for chunk in chunks(grabber, core_count * 12):
                 with Pool(core_count) as p:
                     p.map(do_the_thing, chunk)
                 pb.update(len(chunk))
