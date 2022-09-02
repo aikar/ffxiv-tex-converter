@@ -120,7 +120,7 @@ def get_tex_binary(path):
 
 def do_the_thing(input_path):
     # print('given:' + str(input_path))
-    output_path = Path('./output') / str((input_path.with_name(input_path.stem + '.dds')))
+    output_path = Path('./output') / str((input_path.with_name(input_path.stem + '.tex')))
     output_path.parent.mkdir(exist_ok=True, parents=True)
     binary = get_tex_binary(input_path)
     with open(output_path, 'wb') as wb:
