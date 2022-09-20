@@ -1,3 +1,4 @@
+import gc
 import os
 import time
 from multiprocessing import Pool
@@ -129,6 +130,8 @@ def do_the_thing(input_path):
     binary = get_tex_binary(input_path)
     with open(output_path, 'wb') as wb:
         wb.write(binary)
+    del binary
+    gc.collect()
     # print('written:' + str(output_path))
 
 
@@ -158,13 +161,17 @@ if __name__ == '__main__':
             # if stuff gets slow, lower 32 down to like 24 or something idk.
             # looping in chunks rather than using the pool directly forces python to clean up its subprocesses and
             # prevents overflowing memory to disk
-            for chunk in chunks(grabber, core_count * 12):
+            for chunk in chunks(grabber, core_count // 2):
                 with Pool(core_count) as p:
                     p.map(do_the_thing, chunk)
+                    gc.collect()
                 pb.update(len(chunk))
     else:
-        for file in grabber:
-            do_the_thing(file)
+        with tqdm(total=len(grabber), unit="files") as pb:
+            for file in grabber:
+                do_the_thing(file)
+                gc.collect()
+                pb.update()
 
     execution_time = (time.time() - start_time)
     print("Execution Time: " + str(round(execution_time)) + " sec")

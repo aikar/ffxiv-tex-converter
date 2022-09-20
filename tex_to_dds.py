@@ -1,3 +1,4 @@
+import gc
 import os
 import time
 from multiprocessing import Pool
@@ -37,6 +38,44 @@ def get_dds_fourcc(tex):
         return ddspf_pf.dx10
     if format == tex_tf.b8g8r8a8:
         return ddspf_pf.none
+
+
+def get_dds_dxt10_header(tex):
+    dxgi_format = get_dds_dxt10_dxgi_format(tex.hdr.format)
+    resource_dimension = get_dds_dxt10_resource_dimension()
+    misc_flag = get_dds_dxt10_misc_flag()
+    array_size = get_dds_dxt10_array_size()
+    misc_flag2 = get_dds_dxt10_misc_flags2()
+    dxt10_header = pack('<IIIII', dxgi_format.value, resource_dimension, misc_flag, array_size, misc_flag2)
+    return dxt10_header
+
+
+def get_dds_dxt10_dxgi_format(tex_format):
+    tex_tf = Tex.Header.TextureFormat
+    dxgi_format = Dds.HeaderDxt10.DxgiFormats
+    # todo theoretically should have support for more options but w/e
+    # todo could also be rolled into the fourcc
+    if tex_format == tex_tf.bc7:
+        return dxgi_format.dxgi_format_bc7_unorm
+
+
+def get_dds_dxt10_resource_dimension():
+    # todo for sure
+    return 3
+
+
+def get_dds_dxt10_misc_flag():
+    # todo for sure
+    return 0
+
+
+def get_dds_dxt10_array_size():
+    return 1
+
+
+def get_dds_dxt10_misc_flags2():
+    # todo for sure
+    return 1
 
 
 def get_pitch(height, width, fourcc):
@@ -105,6 +144,7 @@ def get_dds_binary(path):
     tex_binary = Tex.from_file(path)
     fourcc = get_dds_fourcc(tex_binary)
     mipmapCount = get_dds_mipmapCount(tex_binary)
+    ddspf_pf = Dds.DdsPixelformat.PixelFormats
 
     # here comes the structure
     magic = b'DDS '
@@ -116,18 +156,26 @@ def get_dds_binary(path):
     # mipmapCount goes here
     depth = 1
     reserved1_array = numpy.zeros(11, dtype=int)
-    #reserved1_array = b'\x00' * 44
+    # reserved1_array = b'\x00' * 44
     ddspf_header = get_ddspf_header(fourcc)
     caps1 = get_dds_caps1(tex_binary)
     caps2 = 0
     caps3 = 0
     caps4 = 0
     reserved2 = 0
-
     header = magic + pack('<IIIIIII', size, flags, height, width, pitch, depth, mipmapCount) + \
              reserved1_array.tobytes() + ddspf_header + pack('<IIIII', caps1, caps2, caps3, caps4, reserved2)
+    # if we are dxt10, write dxt10 header
+    if fourcc == ddspf_pf.dx10:
+        dds_dxt10_header = get_dds_dxt10_header(tex_binary)
+        header += dds_dxt10_header
+
     body = (b''.join(tex_binary.bdy.data))
     dds_binary = header + body
+
+    del tex_binary
+    gc.collect()
+
     return dds_binary
 
 
@@ -138,6 +186,8 @@ def do_the_thing(input_path):
     binary = get_dds_binary(input_path)
     with open(output_path, 'wb') as wb:
         wb.write(binary)
+    del binary
+    gc.collect()
     # print('written:' + str(output_path))
 
 
@@ -167,7 +217,7 @@ if __name__ == '__main__':
             # if stuff gets slow, lower 32 down to like 24 or something idk.
             # looping in chunks rather than using the pool directly forces python to clean up its subprocesses and
             # prevents overflowing memory to disk
-            for chunk in chunks(grabber, core_count * 12):
+            for chunk in chunks(grabber, core_count):
                 with Pool(core_count) as p:
                     p.map(do_the_thing, chunk)
                 pb.update(len(chunk))
