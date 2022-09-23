@@ -12,7 +12,7 @@ from tqdm import tqdm
 from parsers.dds import Dds
 from parsers.tex import Tex
 
-lod_offset = numpy.array([0, 1, 2])
+lod_offset = numpy.array([0, 1, 2], dtype=numpy.int32)
 
 
 def get_tex_mipmap_length_format(dds):
@@ -40,7 +40,7 @@ def get_tex_mipmap_length_format(dds):
 
 
 def get_mipmap_offsets(mipmap_length, mipmap_count):
-    offset_array = numpy.zeros(13, dtype=int)
+    offset_array = numpy.zeros(13, dtype=numpy.int32)
     offset = 80
     j = 0
     try:

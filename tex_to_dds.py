@@ -155,8 +155,8 @@ def get_dds_binary(path):
     pitch = get_pitch(height, width, fourcc)
     # mipmapCount goes here
     depth = 1
-    # reserved1_array = numpy.zeros(11, dtype=int)
-    reserved1_array = b'\x00' * 44
+    reserved1_array = numpy.zeros(11, dtype=numpy.int32)
+    # reserved1_array = b'\x00' * 44
     ddspf_header = get_ddspf_header(fourcc)
     caps1 = get_dds_caps1(tex_binary)
     caps2 = 0
@@ -164,7 +164,7 @@ def get_dds_binary(path):
     caps4 = 0
     reserved2 = 0
     header = magic + pack('<IIIIIII', size, flags, height, width, pitch, depth, mipmapCount) + \
-             reserved1_array + ddspf_header + pack('<IIIII', caps1, caps2, caps3, caps4, reserved2)
+             reserved1_array.tobytes() + ddspf_header + pack('<IIIII', caps1, caps2, caps3, caps4, reserved2)
     # if we are dxt10, write dxt10 header
     if fourcc == ddspf_pf.dx10:
         dds_dxt10_header = get_dds_dxt10_header(tex_binary)
